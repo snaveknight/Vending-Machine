@@ -23,6 +23,7 @@ public class VendingMachineCLI {
 	private Menu menu;
 
 	private List<ProductAbstract> listOfItems = new ArrayList<>();
+	//ProductAbstract products = new ProductAbstract();
 
 	public VendingMachineCLI(Menu menu) {
 		this.menu = menu;
@@ -32,11 +33,11 @@ public class VendingMachineCLI {
 		Double feedMoney = 0.0;
 
 		File inputFile = new File("vendingmachine.csv");
-		
+
 		Integer quantity = 5;
 		Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
 		String soldOut = "Sold Out";
-		
+
 		while (productListScanner.hasNextLine()) {
 			String currentLine = productListScanner.nextLine();
 			String[] splitStuff = currentLine.split("\\|");
@@ -46,7 +47,7 @@ public class VendingMachineCLI {
 			String type = splitStuff[3];
 			if (type.equals("Chip")) {
 				listOfItems.add(new Chip(type, name, code, cost, 5));
-				//System.out.println(listOfItems);
+				// System.out.println(listOfItems);
 			}
 			if (type.equals("Gum")) {
 				listOfItems.add(new Gum(type, name, code, cost, 5));
@@ -87,6 +88,10 @@ public class VendingMachineCLI {
 
 				} else if (choicePurchaseMenu.equals(SELECT_PRODUCT)) {
 					// show product list
+					for (ProductAbstract item : listOfItems) {
+						System.out
+								.println(item.getCode() + "   " + item.getName() + "    $" + item.getCost() + quantity);
+					}
 					System.out.println("Please Select Product");
 					while (productListScanner.hasNextLine()) {
 						String currentLine = productListScanner.nextLine();
@@ -100,11 +105,16 @@ public class VendingMachineCLI {
 					// Take users choice
 					Scanner userInput = new Scanner(System.in);
 					String usersChoice = userInput.nextLine();
+					// System.out.println(usersChoice);
 					usersChoice = usersChoice.toUpperCase();
+					// System.out.println(usersChoice);
 					String[] codes = new String[] { "A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C1", "C2", "C3",
 							"C4", "D1", "D2", "D3", "D4" };
 
 					int count = 0;
+					
+				
+					
 					for (int i = 0; i < codes.length; i++) {
 						if (usersChoice.equals(codes[i])) {
 							count++;
@@ -114,9 +124,18 @@ public class VendingMachineCLI {
 					// if users choice doesn't exist
 					if (count < 1) {
 						System.out.println("code does not exist");
-					} else if (quantity < 1) {
-						System.out.println(soldOut);
+				
+					} for(ProductAbstract items : listOfItems) {
+						if (usersChoice.contentEquals(listOfItems.getClass()))
 					}
+					
+//					else if (quantity < 1) {
+//						System.out.println(soldOut);
+//					}
+//					else if (feedMoney) {
+//						
+//					}
+					
 				}
 
 				// At this point we decide we need to make classes and an interface
