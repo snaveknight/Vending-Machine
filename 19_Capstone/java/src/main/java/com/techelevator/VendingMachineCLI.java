@@ -27,7 +27,11 @@ public class VendingMachineCLI {
 			if (choice.equals(MAIN_MENU_OPTION_DISPLAY_ITEMS)) {
 				// display vending machine items
 				Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
-				System.out.println(productListScanner);
+				while (productListScanner.hasNextLine()) {
+				String currentLine = productListScanner.nextLine();
+				String[] lineData = currentLine.split("|");
+				System.out.println(displayMenu);
+				}
 			} else if (choice.equals(MAIN_MENU_OPTION_PURCHASE)) {
 				// do purchase
 				
