@@ -1,0 +1,11 @@
+(2) Select Product allows the customer to select a product to purchase. 
+* i. Show the list of products available and allow the customer to enter to code to select an item 
+* ii. If the product code does not exist, the customer is informed and returned to the Purchase menu. 
+* iii. If a product is sold out, the customer is informed and returned to the Purchase menu. 
+* iv. If a valid product is selected it is dispensed to the customer. 
+* v. Dispensing an item will print the item name, cost and the money remaining. Dispensing will also return a message.
+ 1. All chip items will print “Crunch Crunch, Yum!” 
+2. All candy items will print “Munch Munch, Yum!” 
+3. All drink items will print “Glug Glug, Yum!” 
+4. All gum items will print “Chew Chew, Yum!” * 
+vi. After the product is dispensed, the machine should update its balance accordingly and return the customer to the Purchase menu. * c. Selecting 
