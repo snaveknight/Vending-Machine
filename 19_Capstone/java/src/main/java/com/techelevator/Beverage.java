@@ -3,7 +3,7 @@ package com.techelevator;
 public class Beverage {
 	private String name = "sodaOne" ;
 	private Double price = 0.0;
-	private int quantity;
+	private int quantity = 5;
 	
 	public int getQuantity() {
 		return quantity;
