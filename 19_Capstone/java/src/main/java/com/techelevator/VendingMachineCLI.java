@@ -2,6 +2,10 @@ package com.techelevator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -30,7 +34,7 @@ public class VendingMachineCLI {
 	}
 
 	public void run() throws FileNotFoundException {
-
+		
 		File inputFile = new File("vendingmachine.csv");
 		// call the inventory file
 		Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
@@ -66,8 +70,17 @@ public class VendingMachineCLI {
 			if (choice.equals(MAIN_MENU_OPTION_DISPLAY_ITEMS)) {
 				// display vending machine items
 				for (ProductAbstract item : listOfItems) {
+					//if else for is the product is sold out or not
+					if (item.getQuantity() < 1) {
+						System.out.println(
+								item.getCode() + "   " + item.getName() + "    $" + item.getCost() + " Quantity  " 
+						+ soldOut);
+					}
+					else {
 					System.out.println(
-							item.getCode() + "   " + item.getName() + "    $" + item.getCost() + item.getQuantity());
+							item.getCode() + "   " + item.getName() + "    $" + item.getCost() + " Quantity  " 
+					+ item.getQuantity());
+					}
 				}
 
 			} else if (choice.equals(MAIN_MENU_OPTION_PURCHASE)) {
@@ -104,28 +117,41 @@ public class VendingMachineCLI {
 					// System.out.println("THIS WORKS");
 					System.out.println(makeChange(feedMoney));
 					feedMoney = 0.0;
-
 				}
-			} else if (choice.equals(MAIN_MENU_EXIT)) {
-
+			} else if (choice.equals(MAIN_MENU_EXIT)) 
 				break;
 			}
 		}
-	}
-
+	
+	//main method
 	public static void main(String[] args) throws FileNotFoundException {
+		//make a new file for the audit
 		Menu menu = new Menu(System.in, System.out);
 		VendingMachineCLI cli = new VendingMachineCLI(menu);
 		cli.run();
+		
 	}
-
+	
+	//method to add to the file audit 
+	public static void logFile(String dispenseType, Double moneyFeed, Double currentBalance) 
+			throws FileNotFoundException {
+		
+		File newFile = new File("Log.txt");
+		PrintWriter pw = new PrintWriter(newFile.getAbsoluteFile());
+		//import the date util to make date and time for the audit file 
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		//store the current and added balance in variables
+		
+		
+	}
+	
+	
+	//method for making change
 	public String makeChange(Double userBalance) {
-
 		int quarters = 0;
 		int dimes = 0;
 		int nickels = 0;
 		int balance = (int) (userBalance * 100);
-
 		while (balance > 0) {
 				//Determines Quarters
 				quarters = balance / 25;
@@ -141,11 +167,10 @@ public class VendingMachineCLI {
 				nickels = balance / 5;
 				totalCoins = nickels * 5;
 				balance -= totalCoins;
-			
 		}
 		return "Your change is " + quarters + " quarters and " + dimes + " dimes and " + nickels + " nickels.";
 	}
-
+	//our method for the purchase menu dispensing 
 	public String dispenseMethod(String usersChoice) {
 		String thisDispenseMessage = "";
 		int counter = 0;
@@ -158,7 +183,7 @@ public class VendingMachineCLI {
 		if (counter < 1) {
 			return "Code does not exist";
 		}
-
+		//for loop to validate quantity and make sure enough to pay 
 		for (int i = 0; i < listOfItems.size(); i++) {
 			// Gets uersChoice code
 			if (listOfItems.get(i).getCode().equals(usersChoice)) {
