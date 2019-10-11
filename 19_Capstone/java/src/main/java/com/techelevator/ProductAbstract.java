@@ -6,7 +6,12 @@ public abstract class ProductAbstract {
 	private String code;
 	private Double cost;
 	private Integer quantity;
+	private String dispenseMessage;
 
+	public String getDispenseMessage() {
+		return dispenseMessage;
+	}
+	
 	public ProductAbstract(String type, String name, String code, Double cost, Integer quantity) {
 		this.type = type;
 		this.name = name;
