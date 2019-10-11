@@ -6,7 +6,10 @@ public class Chip extends ProductAbstract {
 		super(type, name, code, cost, quantity);
 		// TODO Auto-generated constructor stub
 	}
-
+	private String dispenseMessage = "Crunch Crunch, Yum!";
+	public String getDispenseMessage() {
+		return (dispenseMessage);
+	}
 	@Override
 	public String getType() {
 		// TODO Auto-generated method stub

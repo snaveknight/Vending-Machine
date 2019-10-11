@@ -1,6 +1,11 @@
 package com.techelevator;
 
 public class Candy extends ProductAbstract {
+	
+	private String dispenseMessage = "Munch Munch, Yum!";
+	public String getDispenseMessage() {
+		return (dispenseMessage);
+	}
 
 	public Candy(String type, String name, String code, Double cost, Integer quantity) {
 		super(type, name, code, cost, quantity);

@@ -13,17 +13,15 @@ public class VendingMachineCLI {
 	private static final String MAIN_MENU_OPTION_DISPLAY_ITEMS = "Display Vending Machine Items";
 	private static final String MAIN_MENU_OPTION_PURCHASE = "Purchase";
 	private static final String MAIN_MENU_EXIT = "Exit";
-	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_DISPLAY_ITEMS, 
-			MAIN_MENU_OPTION_PURCHASE,
+	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_DISPLAY_ITEMS, MAIN_MENU_OPTION_PURCHASE,
 			MAIN_MENU_EXIT };
 	private static final String FEED_MONEY = "Feed Money";
 	private static final String SELECT_PRODUCT = "Select Product";
 	private static final String FINISH_TRANSACTION = "Finish Transaction";
-	private static final String[] PURCHASE_MENU_OPTIONS = { FEED_MONEY, SELECT_PRODUCT, 
-			FINISH_TRANSACTION };
+	private static final String[] PURCHASE_MENU_OPTIONS = { FEED_MONEY, SELECT_PRODUCT, FINISH_TRANSACTION };
 
 	private Menu menu;
-
+	Double feedMoney = 0.0;
 	private List<ProductAbstract> listOfItems = new ArrayList<>();
 	// ProductAbstract products = new ProductAbstract();
 
@@ -31,15 +29,14 @@ public class VendingMachineCLI {
 		this.menu = menu;
 	}
 
-	Double feedMoney = 0.0;
 	public void run() throws FileNotFoundException {
 
 		File inputFile = new File("vendingmachine.csv");
-		//call the inventory file 
+		// call the inventory file
 		Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
 		String soldOut = "Sold Out";
-		
-		//use a while loop to populate our list with the file 
+
+		// use a while loop to populate our list with the file
 		while (productListScanner.hasNextLine()) {
 			String currentLine = productListScanner.nextLine();
 			String[] splitStuff = currentLine.split("\\|");
@@ -60,23 +57,23 @@ public class VendingMachineCLI {
 				listOfItems.add(new Candy(type, name, code, cost, 5));
 			}
 		}
-		
-		//  ********************** start of main loop **********************
+
+		// ********************** start of main loop **********************
 		while (true) {
-			
+
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
-			
+
 			if (choice.equals(MAIN_MENU_OPTION_DISPLAY_ITEMS)) {
 				// display vending machine items
 				for (ProductAbstract item : listOfItems) {
-					System.out.println(item.getCode() + "   "
-				+ item.getName() + "    $" + item.getCost() + item.getQuantity());
+					System.out.println(
+							item.getCode() + "   " + item.getName() + "    $" + item.getCost() + item.getQuantity());
 				}
 
 			} else if (choice.equals(MAIN_MENU_OPTION_PURCHASE)) {
 				// purchase menu
 				String choicePurchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
-				System.out.println("Current Money Provided " + feedMoney);
+				// System.out.println("Current Money Provided " + feedMoney);
 
 				if (choicePurchaseMenu.equals(FEED_MONEY)) {
 					// feed money
@@ -90,23 +87,27 @@ public class VendingMachineCLI {
 				} else if (choicePurchaseMenu.equals(SELECT_PRODUCT)) {
 					// show product list
 					for (ProductAbstract item : listOfItems) {
-						System.out
-								.println(item.getCode() + "   " + item.getName()
-								+ "    $" + item.getCost() + item.getQuantity());
+						System.out.println(item.getCode() + "   " + item.getName() + "    $" + item.getCost()
+								+ item.getQuantity());
 					}
-					//have the user input a product code
+					// have the user input a product code
 					System.out.println("Please Select Product");
-				
+
 					// Take users choice
 					Scanner userCodeEntry = new Scanner(System.in);
 					String usersChoice = userCodeEntry.nextLine();
 					usersChoice = usersChoice.toUpperCase();
-					
-					//call dispense method
+
+					// call dispense method
 					System.out.print(dispenseMethod(usersChoice));
+				} else if (choicePurchaseMenu.equals(FINISH_TRANSACTION)) {
+					// System.out.println("THIS WORKS");
+					System.out.println(makeChange(feedMoney));
+					feedMoney = 0.0;
+
 				}
-			} 
-			else if (choice.equals(MAIN_MENU_EXIT)) {
+			} else if (choice.equals(MAIN_MENU_EXIT)) {
+
 				break;
 			}
 		}
@@ -117,32 +118,67 @@ public class VendingMachineCLI {
 		VendingMachineCLI cli = new VendingMachineCLI(menu);
 		cli.run();
 	}
-	public  String dispenseMethod(String usersChoice) {
-		String thisDispenseMessage = "";
-		// validate users choice doesn't exist
-		if (!listOfItems.contains(usersChoice)) {
-			return "Code does not exist.";				
-		} 
-		for (int i = 0; i < listOfItems.size(); i ++) {
-			//validate the code exists after the user puts in their choice
 
-			//now we need to take the users choice and put it to the ProductAbstract list
-			// verify have enough qty is valid
-			if (listOfItems.get(i).getQuantity() < 1) {
-				return "That item is sold out.";
-			} 
-			// make sure have enough to pay
-			else if (feedMoney < listOfItems.get(i).getCost()) {
-				return "You don't have enought depostited for that item.";
+	public String makeChange(Double userBalance) {
+
+		int quarters = 0;
+		int dimes = 0;
+		int nickels = 0;
+		int balance = (int) (userBalance * 100);
+
+		while (balance > 0) {
+				//Determines Quarters
+				quarters = balance / 25;
+				int totalCoins = quarters * 25;
+				balance -= totalCoins;
+				balance = balance%25;
+				//Determines dimes
+				dimes = balance / 10;
+				totalCoins = dimes / 10;
+				balance -= totalCoins;
+				balance = balance%10;		
+				//Deremines nickels
+				nickels = balance / 5;
+				totalCoins = nickels * 5;
+				balance -= totalCoins;
+			
+		}
+		return "Your change is " + quarters + " quarters and " + dimes + " dimes and " + nickels + " nickels.";
+	}
+
+	public String dispenseMethod(String usersChoice) {
+		String thisDispenseMessage = "";
+		int counter = 0;
+		// validate users choice doesn't exist
+		for (int i = 0; i < listOfItems.size(); i++) {
+			if (!listOfItems.get(i).getCode().equals(usersChoice)) {
+				counter++;
 			}
-			else {
-				int quantity = listOfItems.get(i).getQuantity();
-				quantity--;
-				listOfItems.get(i).setQuantity(quantity);
-				feedMoney -= listOfItems.get(i).getCost();
-				thisDispenseMessage = listOfItems.get(i).getDispenseMessage();
+		}
+		if (counter < 1) {
+			return "Code does not exist";
+		}
+
+		for (int i = 0; i < listOfItems.size(); i++) {
+			// Gets uersChoice code
+			if (listOfItems.get(i).getCode().equals(usersChoice)) {
+				// Check quantity of item
+				if (listOfItems.get(i).getQuantity() < 1) {
+					return "That item is sold out.";
+				}
+				// make sure have enough to pay
+				else if (feedMoney < listOfItems.get(i).getCost()) {
+					return "You don't have enought depostited for that item.";
+				} else {
+					// executes vending
+					int quantity = listOfItems.get(i).getQuantity();
+					quantity--;
+					listOfItems.get(i).setQuantity(quantity);
+					feedMoney -= listOfItems.get(i).getCost();
+					thisDispenseMessage = listOfItems.get(i).getDispenseMessage();
+				}
 			}
-		}	
+		}
 		return thisDispenseMessage;
 	}
 }

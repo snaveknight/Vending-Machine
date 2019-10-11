@@ -6,7 +6,10 @@ public class Drink extends ProductAbstract {
 		super(type, name, code, cost, quantity);
 		// TODO Auto-generated constructor stub
 	}
-
+	private String dispenseMessage = "Glug Glug, Yum!";
+	public String getDispenseMessage() {
+		return (dispenseMessage);
+	}
 	@Override
 	public String getType() {
 		// TODO Auto-generated method stub

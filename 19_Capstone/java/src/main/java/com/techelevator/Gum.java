@@ -1,12 +1,12 @@
 package com.techelevator;
 
 public class Gum extends ProductAbstract {
-	private String dispenseMessage = "Chew Chew, Yum!";
 
 	public Gum(String type, String name, String code, Double cost, Integer quantity) {
 		super(type, name, code, cost, quantity);
 		// TODO Auto-generated constructor stub
 	}
+	private String dispenseMessage = "Chew Chew, Yum!";
 	public String getDispenseMessage() {
 		return (dispenseMessage);
 	}
