@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -36,6 +38,7 @@ public class VendingMachineCLI {
 	public VendingMachineCLI(Menu menu) {
 		this.menu = menu;
 	}
+
 
 	public void run() throws FileNotFoundException {
 		
@@ -119,9 +122,15 @@ public class VendingMachineCLI {
 
 						// call dispense method
 						System.out.print(dispenseMethod(usersChoice));
+						
+						for (int i = 0; i< listOfItems.size(); i++ ) {
+							if (listOfItems.get(i).getCode().equals(usersChoice)) {
+							usersChoice = listOfItems.get(i).getName();	
+							}
+						}
 
 						// call the logfile method
-						getDateAndTime(SELECT_PRODUCT, currentBalance, feedMoney);
+						getDateAndTime(usersChoice, currentBalance, feedMoney);
 
 					} else if (choicePurchaseMenu.equals(FINISH_TRANSACTION)) {
 						
@@ -155,8 +164,13 @@ public class VendingMachineCLI {
 	// method to add to the file audit
 	public static void getDateAndTime(String action, BigDecimal addMoney, BigDecimal currentMoney) {
 		// import the date util to make date and time for the audit file
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date dateObject = new Date(0);
+//		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//		
+//		Date dateObject = new Date();
+		
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+		LocalDateTime dateObject = LocalDateTime.now();  
+		
 		if (action.equals(SELECT_PRODUCT)) {
 			auditLine = dateFormat.format(dateObject) + " " + action + "     $" + addMoney + " $" + currentMoney + "\n";
 		} else if (action.equals(FEED_MONEY)) {
@@ -227,6 +241,7 @@ public class VendingMachineCLI {
 			nickels = balance / 5;
 			totalCoins = nickels * 5;
 			balance -= totalCoins;
+			break;
 		}
 		return "Your change is " + quarters + " quarters and " + dimes + " dimes and " + nickels + " nickels.";
 	}
