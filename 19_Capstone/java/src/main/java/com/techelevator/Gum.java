@@ -1,8 +1,10 @@
 package com.techelevator;
 
+import java.math.BigDecimal;
+
 public class Gum extends ProductAbstract {
 
-	public Gum(String type, String name, String code, Double cost, Integer quantity) {
+	public Gum(String type, String name, String code, BigDecimal cost, Integer quantity) {
 		super(type, name, code, cost, quantity);
 		// TODO Auto-generated constructor stub
 	}
@@ -48,13 +50,13 @@ public class Gum extends ProductAbstract {
 	}
 
 	@Override
-	public Double getCost() {
+	public BigDecimal getCost() {
 		// TODO Auto-generated method stub
 		return super.getCost();
 	}
 
 	@Override
-	public void setCost(Double cost) {
+	public void setCost(BigDecimal cost) {
 		// TODO Auto-generated method stub
 		super.setCost(cost);
 	}

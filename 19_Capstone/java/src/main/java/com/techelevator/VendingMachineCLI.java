@@ -2,7 +2,10 @@ package com.techelevator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,9 +28,10 @@ public class VendingMachineCLI {
 	private static final String[] PURCHASE_MENU_OPTIONS = { FEED_MONEY, SELECT_PRODUCT, FINISH_TRANSACTION };
 
 	private Menu menu;
-	Double feedMoney = 0.0;
+	static String auditLine = "";
+	BigDecimal feedMoney = new BigDecimal(0.00);
 	private List<ProductAbstract> listOfItems = new ArrayList<>();
-	// ProductAbstract products = new ProductAbstract();
+
 
 	public VendingMachineCLI(Menu menu) {
 		this.menu = menu;
@@ -35,19 +39,23 @@ public class VendingMachineCLI {
 
 	public void run() throws FileNotFoundException {
 		
+		//new file to call the vending machine file 
 		File inputFile = new File("vendingmachine.csv");
+		
 		// call the inventory file
 		Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
-		String soldOut = "Sold Out";
 
 		// use a while loop to populate our list with the file
 		while (productListScanner.hasNextLine()) {
+			
 			String currentLine = productListScanner.nextLine();
 			String[] splitStuff = currentLine.split("\\|");
 			String code = splitStuff[0];
 			String name = splitStuff[1];
-			Double cost = Double.parseDouble(splitStuff[2]);
+			BigDecimal cost = new BigDecimal(splitStuff[2]);
 			String type = splitStuff[3];
+			
+			//adding items to the list of itmes
 			if (type.equals("Chip")) {
 				listOfItems.add(new Chip(type, name, code, cost, 5));
 			}
@@ -68,109 +76,162 @@ public class VendingMachineCLI {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 
 			if (choice.equals(MAIN_MENU_OPTION_DISPLAY_ITEMS)) {
+				
 				// display vending machine items
-				for (ProductAbstract item : listOfItems) {
-					//if else for is the product is sold out or not
-					if (item.getQuantity() < 1) {
-						System.out.println(
-								item.getCode() + "   " + item.getName() + "    $" + item.getCost() + " Quantity  " 
-						+ soldOut);
-					}
-					else {
-					System.out.println(
-							item.getCode() + "   " + item.getName() + "    $" + item.getCost() + " Quantity  " 
-					+ item.getQuantity());
-					}
-				}
+				productList();
 
 			} else if (choice.equals(MAIN_MENU_OPTION_PURCHASE)) {
-				// purchase menu
-				String choicePurchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
-				// System.out.println("Current Money Provided " + feedMoney);
+				
+				while (true) {
+					
+					// purchase menu
+					String choicePurchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
+					
 
-				if (choicePurchaseMenu.equals(FEED_MONEY)) {
-					// feed money
-					System.out.println("Please Insert Money");
-					Scanner userInput = new Scanner(System.in);
-					String userFeedMoney = userInput.nextLine();
-					Integer userFeedMoneyInt = Integer.parseInt(userFeedMoney);
-					feedMoney += userFeedMoneyInt;
-					System.out.println("Current Balance: " + feedMoney);
+					if (choicePurchaseMenu.equals(FEED_MONEY)) {
+						
+						// feed money
+						System.out.println("Please Insert Money");
+						Scanner userInput = new Scanner(System.in);
+						String userFeedMoney = userInput.nextLine();
+						BigDecimal userFeedMoneyBigD = new BigDecimal(userFeedMoney);
+						feedMoney = feedMoney.add(userFeedMoneyBigD);
+						System.out.println("Current Balance: " + feedMoney);
+						
+						// BigDecimal oldMoney = feedMoney;
+						getDateAndTime(FEED_MONEY, userFeedMoneyBigD, feedMoney);
 
-				} else if (choicePurchaseMenu.equals(SELECT_PRODUCT)) {
-					// show product list
-					for (ProductAbstract item : listOfItems) {
-						System.out.println(item.getCode() + "   " + item.getName() + "    $" + item.getCost()
-								+ item.getQuantity());
+					} else if (choicePurchaseMenu.equals(SELECT_PRODUCT)) {
+						
+						// show product list
+						productList();
+						
+						// have the user input a product code
+						System.out.println("Please Select Product");
+
+						// Take users choice
+						Scanner userCodeEntry = new Scanner(System.in);
+						String usersChoice = userCodeEntry.nextLine();
+						usersChoice = usersChoice.toUpperCase();
+
+						// create variable to hold the current balance
+						BigDecimal currentBalance = feedMoney;
+
+						// call dispense method
+						System.out.print(dispenseMethod(usersChoice));
+
+						// call the logfile method
+						getDateAndTime(SELECT_PRODUCT, currentBalance, feedMoney);
+
+					} else if (choicePurchaseMenu.equals(FINISH_TRANSACTION)) {
+						
+						// create a current balance
+						BigDecimal currentBalance = feedMoney;
+						
+						// System.out.println("THIS WORKS");
+						System.out.println(makeChange(feedMoney));
+						feedMoney = feedMoney.ZERO;
+						
+						// call the logfile method
+						getDateAndTime(FINISH_TRANSACTION, currentBalance, feedMoney);
+						break;
 					}
-					// have the user input a product code
-					System.out.println("Please Select Product");
 
-					// Take users choice
-					Scanner userCodeEntry = new Scanner(System.in);
-					String usersChoice = userCodeEntry.nextLine();
-					usersChoice = usersChoice.toUpperCase();
-
-					// call dispense method
-					System.out.print(dispenseMethod(usersChoice));
-				} else if (choicePurchaseMenu.equals(FINISH_TRANSACTION)) {
-					// System.out.println("THIS WORKS");
-					System.out.println(makeChange(feedMoney));
-					feedMoney = 0.0;
 				}
-			} else if (choice.equals(MAIN_MENU_EXIT)) 
+			} else if (choice.equals(MAIN_MENU_EXIT))
 				break;
-			}
 		}
-	
-	//main method
+	}
+
+	// main method
 	public static void main(String[] args) throws FileNotFoundException {
-		//make a new file for the audit
+		// make a new file for the audit
 		Menu menu = new Menu(System.in, System.out);
 		VendingMachineCLI cli = new VendingMachineCLI(menu);
 		cli.run();
-		
+
 	}
-	
-	//method to add to the file audit 
-	public static void logFile(String dispenseType, Double moneyFeed, Double currentBalance) 
-			throws FileNotFoundException {
-		
-		File newFile = new File("Log.txt");
-		PrintWriter pw = new PrintWriter(newFile.getAbsoluteFile());
-		//import the date util to make date and time for the audit file 
+
+	// method to add to the file audit
+	public static void getDateAndTime(String action, BigDecimal addMoney, BigDecimal currentMoney) {
+		// import the date util to make date and time for the audit file
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		//store the current and added balance in variables
-		
-		
+		Date dateObject = new Date(0);
+		if (action.equals(SELECT_PRODUCT)) {
+			auditLine = dateFormat.format(dateObject) + " " + action + "     $" + addMoney + " $" + currentMoney + "\n";
+		} else if (action.equals(FEED_MONEY)) {
+			auditLine = dateFormat.format(dateObject) + " " + action + "         $" + addMoney + " $" + currentMoney
+					+ "\n";
+		} else {
+			auditLine = dateFormat.format(dateObject) + " " + action + " $" + addMoney + " $" + currentMoney + "\n";
+		}
+
+		try {
+			getNewAuditFile(auditLine);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// store the current and added balance in variables
+
 	}
-	
-	
-	//method for making change
-	public String makeChange(Double userBalance) {
+
+	public static void getNewAuditFile(String auditLine) throws IOException {
+
+		try {
+			File file = new File("log.txt");
+			PrintWriter pw = null;
+
+			if (file.exists()) {
+				pw = new PrintWriter(new FileOutputStream(file.getAbsoluteFile(), true));
+
+			} else {
+				pw = new PrintWriter(file.getAbsoluteFile());
+
+			}
+			pw.append(auditLine);
+			pw.flush();
+			pw.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+//	public static void logFile(String dispenseType, BigDecimal moneyFeed, BigDecimal currentBalance) 
+//			throws FileNotFoundException {
+//		
+//		File newFile = new File("Log.txt");
+//		PrintWriter pw = new PrintWriter(newFile.getAbsoluteFile());
+//
+//	}
+	// method for making change
+	public String makeChange(BigDecimal userBalance) {
 		int quarters = 0;
 		int dimes = 0;
 		int nickels = 0;
-		int balance = (int) (userBalance * 100);
+		BigDecimal oneHundred = new BigDecimal(100);
+		userBalance = userBalance.multiply(oneHundred);
+		int balance = userBalance.intValue();
 		while (balance > 0) {
-				//Determines Quarters
-				quarters = balance / 25;
-				int totalCoins = quarters * 25;
-				balance -= totalCoins;
-				balance = balance%25;
-				//Determines dimes
-				dimes = balance / 10;
-				totalCoins = dimes / 10;
-				balance -= totalCoins;
-				balance = balance%10;		
-				//Deremines nickels
-				nickels = balance / 5;
-				totalCoins = nickels * 5;
-				balance -= totalCoins;
+			// Determines Quarters
+			quarters = balance / 25;
+			int totalCoins = quarters * 25;
+			balance -= totalCoins;
+			balance = balance % 25;
+			// Determines dimes
+			dimes = balance / 10;
+			totalCoins = dimes / 10;
+			balance -= totalCoins;
+			balance = balance % 10;
+			// Determines nickels
+			nickels = balance / 5;
+			totalCoins = nickels * 5;
+			balance -= totalCoins;
 		}
 		return "Your change is " + quarters + " quarters and " + dimes + " dimes and " + nickels + " nickels.";
 	}
-	//our method for the purchase menu dispensing 
+
+	// our method for the purchase menu dispensing
 	public String dispenseMethod(String usersChoice) {
 		String thisDispenseMessage = "";
 		int counter = 0;
@@ -180,10 +241,10 @@ public class VendingMachineCLI {
 				counter++;
 			}
 		}
-		if (counter < 1) {
+		if (counter == listOfItems.size()) {
 			return "Code does not exist";
 		}
-		//for loop to validate quantity and make sure enough to pay 
+		// for loop to validate quantity and make sure enough to pay
 		for (int i = 0; i < listOfItems.size(); i++) {
 			// Gets uersChoice code
 			if (listOfItems.get(i).getCode().equals(usersChoice)) {
@@ -192,18 +253,37 @@ public class VendingMachineCLI {
 					return "That item is sold out.";
 				}
 				// make sure have enough to pay
-				else if (feedMoney < listOfItems.get(i).getCost()) {
+				else if (feedMoney.compareTo(listOfItems.get(i).getCost()) < 0) {
 					return "You don't have enought depostited for that item.";
 				} else {
 					// executes vending
 					int quantity = listOfItems.get(i).getQuantity();
 					quantity--;
 					listOfItems.get(i).setQuantity(quantity);
-					feedMoney -= listOfItems.get(i).getCost();
+					feedMoney = feedMoney.subtract(listOfItems.get(i).getCost());
 					thisDispenseMessage = listOfItems.get(i).getDispenseMessage();
 				}
 			}
 		}
 		return thisDispenseMessage;
+	}
+	public void productList() {
+		for (ProductAbstract item : listOfItems) {
+			String[] test = new String[] { item.getCode(), item.getName(), "$" + item.getCost().toString(),
+					"Quantity " + item.getQuantity(), "Quantity " + "Sold Out" };
+			int spacingSeperation = 3;
+			int longest = "Little League Chew".length();
+			int spacing = longest + spacingSeperation;
+			// if else for is the product is sold out or not
+			if (item.getQuantity() < 1) {
+				System.out.print(String.format(
+						"%-" + spacing + "s%-" + spacing + "s%-" + spacing + "s%-" + spacing + "s\n", test[0],
+						test[1], test[2], test[4]));
+			} else {
+				System.out.print(String.format(
+						"%-" + spacing + "s%-" + spacing + "s%-" + spacing + "s%-" + spacing + "s\n", test[0],
+						test[1], test[2], test[3]));
+			}
+		}
 	}
 }
