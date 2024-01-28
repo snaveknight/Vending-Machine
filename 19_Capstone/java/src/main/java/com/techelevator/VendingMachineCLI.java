@@ -85,9 +85,9 @@ public class VendingMachineCLI {
 				while (true) {
 
 					// purchase menu
-					String choicePurchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
+					String purchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
 
-					if (choicePurchaseMenu.equals(FEED_MONEY)) {
+					if (purchaseMenu.equals(FEED_MONEY)) {
 
 						// feed money
 						System.out.println("Please Insert Money");
@@ -100,7 +100,7 @@ public class VendingMachineCLI {
 						// BigDecimal oldMoney = feedMoney;
 						getDateAndTime(FEED_MONEY, userFeedMoneyBigD, feedMoney);
 
-					} else if (choicePurchaseMenu.equals(SELECT_PRODUCT)) {
+					} else if (purchaseMenu.equals(SELECT_PRODUCT)) {
 
 						// show product list
 						productList();
@@ -128,7 +128,7 @@ public class VendingMachineCLI {
 						// call the logfile method
 						getDateAndTime(usersChoice, currentBalance, feedMoney);
 
-					} else if (choicePurchaseMenu.equals(FINISH_TRANSACTION)) {
+					} else if (purchaseMenu.equals(FINISH_TRANSACTION)) {
 
 						// create a current balance
 						BigDecimal currentBalance = feedMoney;
