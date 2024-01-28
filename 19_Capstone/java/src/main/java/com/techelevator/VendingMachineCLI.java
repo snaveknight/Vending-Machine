@@ -34,44 +34,31 @@ public class VendingMachineCLI {
 	BigDecimal feedMoney = new BigDecimal(0.00);
 	private List<ProductAbstract> listOfItems = new ArrayList<>();
 
-
 	public VendingMachineCLI(Menu menu) {
 		this.menu = menu;
 	}
-
 
 	public void run() throws FileNotFoundException {
 		
 		//new file to call the vending machine file 
 		File inputFile = new File("vendingmachine.csv");
 		
-		// call the inventory file
-		Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
-
-		// use a while loop to populate our list with the file
-		while (productListScanner.hasNextLine()) {
-			
-			String currentLine = productListScanner.nextLine();
-			String[] splitStuff = currentLine.split("\\|");
-			String code = splitStuff[0];
-			String name = splitStuff[1];
-			BigDecimal cost = new BigDecimal(splitStuff[2]);
-			String type = splitStuff[3];
-			
-			//adding items to the list of itmes
-			if (type.equals("Chip")) {
-				listOfItems.add(new Chip(type, name, code, cost, 5));
-			}
-			if (type.equals("Gum")) {
-				listOfItems.add(new Gum(type, name, code, cost, 5));
-			}
-			if (type.equals("Drink")) {
-				listOfItems.add(new Drink(type, name, code, cost, 5));
-			}
-			if (type.equals("Candy")) {
-				listOfItems.add(new Candy(type, name, code, cost, 5));
-			}
-		}
+		// // adding items to the list of itmes
+		// if (type.equals("Chip")) {
+		// listOfItems.add(new Chip(type, name, code, cost, 5));
+		// }
+		// if (type.equals("Gum")) {
+		// listOfItems.add(new Gum(type, name, code, cost, 5));
+		// }
+		// if (type.equals("Drink")) {
+		// listOfItems.add(new Drink(type, name, code, cost, 5));
+		// }
+		// if (type.equals("Candy")) {
+		// listOfItems.add(new Candy(type, name, code, cost, 5));
+		// }
+		// }
+		// *********************^^^^^^^^^^^^^^^^^^^^^^^^ */
+		loadInventoryItems();
 
 		// ********************** start of main loop **********************
 		while (true) {
