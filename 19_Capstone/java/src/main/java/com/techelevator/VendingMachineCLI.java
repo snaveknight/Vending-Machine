@@ -241,15 +241,7 @@ public class VendingMachineCLI {
 		}
 	}
 
-	// public static void logFile(String dispenseType, BigDecimal moneyFeed,
-	// BigDecimal currentBalance)
-	// throws FileNotFoundException {
-	//
-	// File newFile = new File("Log.txt");
-	// PrintWriter pw = new PrintWriter(newFile.getAbsoluteFile());
-	//
-	// }
-	// method for making change
+
 
 	// our method for the purchase menu dispensing
 	public String dispenseMethod(String usersChoice) {
