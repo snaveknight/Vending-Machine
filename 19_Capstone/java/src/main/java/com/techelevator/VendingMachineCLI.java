@@ -28,6 +28,7 @@ public class VendingMachineCLI {
 	private static final String SELECT_PRODUCT = "Select Product";
 	private static final String FINISH_TRANSACTION = "Finish Transaction";
 	private static final String[] PURCHASE_MENU_OPTIONS = { FEED_MONEY, SELECT_PRODUCT, FINISH_TRANSACTION };
+	public static final String changeCalculator = null;
 
 	private Menu menu;
 	static String auditLine = "";
@@ -39,10 +40,19 @@ public class VendingMachineCLI {
 	}
 
 	public void run() throws FileNotFoundException {
-		
-		//new file to call the vending machine file 
-		File inputFile = new File("vendingmachine.csv");
-		
+		/// EXTRACT METHOD
+		// *******took this block of code and made new method loadInventoryItems();
+		// File inputFile = new File("vendingmachine.csv");
+		// Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
+		// while (productListScanner.hasNextLine()) {
+
+		// String currentLine = productListScanner.nextLine();
+		// String[] splitStuff = currentLine.split("\\|");
+		// String code = splitStuff[0];
+		// String name = splitStuff[1];
+		// BigDecimal cost = new BigDecimal(splitStuff[2]);
+		// String type = splitStuff[3];
+
 		// // adding items to the list of itmes
 		// if (type.equals("Chip")) {
 		// listOfItems.add(new Chip(type, name, code, cost, 5));
@@ -66,20 +76,19 @@ public class VendingMachineCLI {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 
 			if (choice.equals(MAIN_MENU_OPTION_DISPLAY_ITEMS)) {
-				
+
 				// display vending machine items
 				productList();
 
 			} else if (choice.equals(MAIN_MENU_OPTION_PURCHASE)) {
-				
+
 				while (true) {
-					
+
 					// purchase menu
 					String choicePurchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
-					
 
 					if (choicePurchaseMenu.equals(FEED_MONEY)) {
-						
+
 						// feed money
 						System.out.println("Please Insert Money");
 						Scanner userInput = new Scanner(System.in);
@@ -87,15 +96,15 @@ public class VendingMachineCLI {
 						BigDecimal userFeedMoneyBigD = new BigDecimal(userFeedMoney);
 						feedMoney = feedMoney.add(userFeedMoneyBigD);
 						System.out.println("Current Balance: " + feedMoney);
-						
+
 						// BigDecimal oldMoney = feedMoney;
 						getDateAndTime(FEED_MONEY, userFeedMoneyBigD, feedMoney);
 
 					} else if (choicePurchaseMenu.equals(SELECT_PRODUCT)) {
-						
+
 						// show product list
 						productList();
-						
+
 						// have the user input a product code
 						System.out.println("Please Select Product");
 
@@ -109,10 +118,10 @@ public class VendingMachineCLI {
 
 						// call dispense method
 						System.out.print(dispenseMethod(usersChoice));
-						
-						for (int i = 0; i< listOfItems.size(); i++ ) {
+
+						for (int i = 0; i < listOfItems.size(); i++) {
 							if (listOfItems.get(i).getCode().equals(usersChoice)) {
-							usersChoice = listOfItems.get(i).getName();	
+								usersChoice = listOfItems.get(i).getName();
 							}
 						}
 
@@ -120,14 +129,15 @@ public class VendingMachineCLI {
 						getDateAndTime(usersChoice, currentBalance, feedMoney);
 
 					} else if (choicePurchaseMenu.equals(FINISH_TRANSACTION)) {
-						
+
 						// create a current balance
 						BigDecimal currentBalance = feedMoney;
-						
+
 						// System.out.println("THIS WORKS");
-						System.out.println(makeChange(feedMoney));
+						ChangeCalculator changeCalculator = new ChangeCalculator();
+						System.out.println(changeCalculator.makeChange(feedMoney));
 						feedMoney = feedMoney.ZERO;
-						
+
 						// call the logfile method
 						getDateAndTime(FINISH_TRANSACTION, currentBalance, feedMoney);
 						break;
@@ -136,6 +146,39 @@ public class VendingMachineCLI {
 				}
 			} else if (choice.equals(MAIN_MENU_EXIT))
 				break;
+		}
+	}
+
+	private void loadInventoryItems() throws FileNotFoundException {
+		// new file to call the vending machine file
+		File inputFile = new File("vendingmachine.csv");
+
+		// call the inventory file
+		Scanner productListScanner = new Scanner(inputFile.getAbsoluteFile());
+
+		// use a while loop to populate our list with the file
+		while (productListScanner.hasNextLine()) {
+
+			String currentLine = productListScanner.nextLine();
+			String[] splitStuff = currentLine.split("\\|");
+			String code = splitStuff[0];
+			String name = splitStuff[1];
+			BigDecimal cost = new BigDecimal(splitStuff[2]);
+			String type = splitStuff[3];
+
+			// adding items to the list of itmes
+			if (type.equals("Chip")) {
+				listOfItems.add(new Chip(type, name, code, cost, 5));
+			}
+			if (type.equals("Gum")) {
+				listOfItems.add(new Gum(type, name, code, cost, 5));
+			}
+			if (type.equals("Drink")) {
+				listOfItems.add(new Drink(type, name, code, cost, 5));
+			}
+			if (type.equals("Candy")) {
+				listOfItems.add(new Candy(type, name, code, cost, 5));
+			}
 		}
 	}
 
@@ -151,13 +194,13 @@ public class VendingMachineCLI {
 	// method to add to the file audit
 	public static void getDateAndTime(String action, BigDecimal addMoney, BigDecimal currentMoney) {
 		// import the date util to make date and time for the audit file
-//		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//		
-//		Date dateObject = new Date();
-		
-		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
-		LocalDateTime dateObject = LocalDateTime.now();  
-		
+		// DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		//
+		// Date dateObject = new Date();
+
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime dateObject = LocalDateTime.now();
+
 		if (action.equals(SELECT_PRODUCT)) {
 			auditLine = dateFormat.format(dateObject) + " " + action + "     $" + addMoney + " $" + currentMoney + "\n";
 		} else if (action.equals(FEED_MONEY)) {
@@ -198,40 +241,15 @@ public class VendingMachineCLI {
 		}
 	}
 
-//	public static void logFile(String dispenseType, BigDecimal moneyFeed, BigDecimal currentBalance) 
-//			throws FileNotFoundException {
-//		
-//		File newFile = new File("Log.txt");
-//		PrintWriter pw = new PrintWriter(newFile.getAbsoluteFile());
-//
-//	}
+	// public static void logFile(String dispenseType, BigDecimal moneyFeed,
+	// BigDecimal currentBalance)
+	// throws FileNotFoundException {
+	//
+	// File newFile = new File("Log.txt");
+	// PrintWriter pw = new PrintWriter(newFile.getAbsoluteFile());
+	//
+	// }
 	// method for making change
-	public String makeChange(BigDecimal userBalance) {
-		int quarters = 0;
-		int dimes = 0;
-		int nickels = 0;
-		BigDecimal oneHundred = new BigDecimal(100);
-		userBalance = userBalance.multiply(oneHundred);
-		int balance = userBalance.intValue();
-		while (balance > 0) {
-			// Determines Quarters
-			quarters = balance / 25;
-			int totalCoins = quarters * 25;
-			balance -= totalCoins;
-			balance = balance % 25;
-			// Determines dimes
-			dimes = balance / 10;
-			totalCoins = dimes / 10;
-			balance -= totalCoins;
-			balance = balance % 10;
-			// Determines nickels
-			nickels = balance / 5;
-			totalCoins = nickels * 5;
-			balance -= totalCoins;
-			break;
-		}
-		return "Your change is " + quarters + " quarters and " + dimes + " dimes and " + nickels + " nickels.";
-	}
 
 	// our method for the purchase menu dispensing
 	public String dispenseMethod(String usersChoice) {
@@ -269,6 +287,7 @@ public class VendingMachineCLI {
 		}
 		return thisDispenseMessage;
 	}
+
 	public void productList() {
 		for (ProductAbstract item : listOfItems) {
 			String[] test = new String[] { item.getCode(), item.getName(), "$" + item.getCost().toString(),

@@ -20,17 +20,19 @@ public class DispenseTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
-	//DispenseTest test = new DispenseTest();
+
+	// DispenseTest test = new DispenseTest();
 	VendingMachineCLI tester = new VendingMachineCLI(null);
-	
+
 	@Test
 	public void oneDollarMakesFourQuarters() {
 		BigDecimal oneDollar = new BigDecimal(1.00);
-		String actual = tester.makeChange(oneDollar);
+		ChangeCalculator changeCalculator = new ChangeCalculator();
+		String actual = tester.changeCalculator.makeChange(oneDollar);
 		String expected = "Your change is 4 quarters and 0 dimes and 0 nickels.";
 		Assert.assertEquals(expected, actual);
 	}
+
 	@Test
 	public void oneDollarTwoFiveMakesFiveQuarters() {
 		BigDecimal oneDollar = new BigDecimal(1.25);
@@ -38,6 +40,7 @@ public class DispenseTest {
 		String expected = "Your change is 5 quarters and 0 dimes and 0 nickels.";
 		Assert.assertEquals(expected, actual);
 	}
+
 	@Test
 	public void OneEightyFiveMakesThreeQuartersOneDime() {
 		BigDecimal oneDollar = new BigDecimal(1.85);
@@ -45,6 +48,7 @@ public class DispenseTest {
 		String expected = "Your change is 7 quarters and 1 dimes and 0 nickels.";
 		Assert.assertEquals(expected, actual);
 	}
+
 	@Test
 	public void onethirtyMakesFiveQOneN() {
 		BigDecimal oneDollar = new BigDecimal(1.30);
